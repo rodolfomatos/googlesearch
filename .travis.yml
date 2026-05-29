@@ -1,27 +1,14 @@
 language: python
-
-# Supported CPython versions:
-# https://en.wikipedia.org/wiki/CPython#Version_history
 python:
- - pypy3
- - pypy
- - 2.7
- - 3.6
- - 3.5
- - 3.4
-
-# Use container-based infrastructure
-sudo: false
-
+  - "3.7"
+  - "3.8"
+  - "3.9"
+  - "3.10"
+  - "3.11"
 install:
- - pip install pycodestyle pyflakes
-
+  - pip install ruff pytest
 script:
- # Static analysis
- - pyflakes .
- - pyflakes ./scripts/google
- - pycodestyle --statistics --count .
- - pycodestyle --statistics --count ./scripts/google
-
+  - ruff check googlesearch/ tests/
+  - python -m pytest tests/ -v
 matrix:
   fast_finish: true

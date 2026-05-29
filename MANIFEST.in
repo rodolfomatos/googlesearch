@@ -1,6 +1,9 @@
 include README.md
 include MANIFEST.in
 include setup.py
+include pyproject.toml
 include scripts/google
 include requirements.txt
 include googlesearch/user_agents.txt.gz
+graft tests
+graft docs

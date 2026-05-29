@@ -23,6 +23,13 @@ pip-log.txt
 # Unit test / coverage reports
 .coverage
 .tox
+.pytest_cache
+__pycache__/
+*.pyc
+
+# Virtual environments
+venv/
+.venv/
 
 #Translations
 *.mo

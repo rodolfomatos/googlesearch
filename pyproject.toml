@@ -1,0 +1,46 @@
+[build-system]
+requires = ["setuptools>=64"]
+build-backend = "setuptools.backends._legacy:_Backend"
+
+[project]
+name = "google"
+dynamic = ["version"]
+description = "Unofficial Python bindings to the Google search engine. Not affiliated with Google."
+readme = "README.md"
+license = {text = "BSD 3-Clause"}
+requires-python = ">=3.7"
+authors = [
+    {name = "Mario Vilas", email = "mvilas@gmail.com"},
+]
+classifiers = [
+    "Development Status :: 5 - Production/Stable",
+    "Intended Audience :: Developers",
+    "License :: OSI Approved :: BSD License",
+    "Environment :: Console",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.7",
+    "Programming Language :: Python :: 3.8",
+    "Programming Language :: Python :: 3.9",
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+    "Topic :: Software Development :: Libraries :: Python Modules",
+]
+dependencies = [
+    "beautifulsoup4>=4.0",
+]
+
+[project.optional-dependencies]
+playwright = ["playwright"]
+
+urls = {Homepage = "https://github.com/MarioVilas/googlesearch"}
+
+[project.scripts]
+google-search = "googlesearch.__main__:main"
+
+[tool.setuptools]
+packages = ["googlesearch"]
+package-data = {"googlesearch" = ["user_agents.txt.gz"]}
+
+[tool.setuptools.dynamic]
+version = {attr = "googlesearch.__version__"}
