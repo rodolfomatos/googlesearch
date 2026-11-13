@@ -41,6 +41,7 @@ current_ticket: ""
 | T012 | Atualizar documentação após mudanças do sprint-02 | sprint-02 | done | high |
 | T013 | Rate limiting e deteção de HTTP 429/403 | sprint-03 | done | high |
 | T014 | Corrigir dívida técnica menor (findings MINOR da auditoria) | sprint-03 | done | medium |
+| T015 | Auditoria hostil final pós-sprint-03 | sprint-03 | done | high |
 
 ## Backlog
 
