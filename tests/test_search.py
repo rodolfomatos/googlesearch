@@ -1,7 +1,7 @@
 import os
 import sys
 import unittest
-from unittest.mock import patch
+from unittest.mock import patch, MagicMock
 from googlesearch import (
     search,
     lucky,
@@ -343,6 +343,32 @@ class TestCLIArgs(unittest.TestCase):
         self._run_main_with_args(["opencode", "agents", "test"])
         args, _ = mock_search.call_args
         self.assertEqual(args[0], "opencode agents test")
+
+
+class TestGetPage(unittest.TestCase):
+    """Testes para get_page() com mock (sem rede)."""
+
+    @patch("googlesearch.urlopen")
+    def test_get_page_passes_timeout(self, mock_urlopen):
+        mock_response = MagicMock()
+        mock_response.read.return_value = b"<html></html>"
+        mock_response.__enter__.return_value = mock_response
+        mock_response.__exit__.return_value = False
+        mock_urlopen.return_value = mock_response
+
+        from googlesearch import get_page
+        get_page("https://example.com", timeout=5.0)
+
+        _, kwargs = mock_urlopen.call_args
+        self.assertEqual(kwargs["timeout"], 5.0)
+
+    @patch("googlesearch.urlopen")
+    def test_get_page_raises_on_timeout(self, mock_urlopen):
+        mock_urlopen.side_effect = TimeoutError("timed out")
+
+        from googlesearch import get_page
+        with self.assertRaises(TimeoutError):
+            get_page("https://example.com", timeout=0.001)
 
 
 if __name__ == "__main__":
