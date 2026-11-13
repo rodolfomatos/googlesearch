@@ -2,7 +2,7 @@
 project: googlesearch
 created: 2026-11-13
 current_sprint: sprint-02
-current_ticket: T008
+current_ticket: T009
 ---
 
 # Kanban — googlesearch
@@ -14,7 +14,7 @@ current_ticket: T008
 | Projeto | googlesearch |
 | Criado em | 2026-11-13 |
 | Sprint atual | sprint-02 |
-| Ticket atual | T008 |
+| Ticket atual | T009 |
 
 ## Sprints
 
@@ -34,8 +34,8 @@ current_ticket: T008
 | T005 | Type hints públicos (`search`, `filter_result`, `get_tbs`, etc.) | sprint-01 | done | medium |
 | T006 | Auditoria hostil completa do projeto (11 domínios AES) | sprint-02 | done | high |
 | T007 | Corrigir findings de segurança (SSL, cookie jar, user-agent) | sprint-02 | done | high |
-| T008 | Adicionar timeout de rede e rate limiting / deteção 429 | sprint-02 | in-progress | high |
-| T009 | Melhorar cobertura de testes (get_page, Playwright, erros de rede) | sprint-02 | pending | high |
+| T008 | Adicionar timeout de rede e rate limiting / deteção 429 | sprint-02 | done | high |
+| T009 | Melhorar cobertura de testes (get_page, Playwright, erros de rede) | sprint-02 | in-progress | high |
 | T0010 | Melhorar CI (format check, mypy, prevenir testes de rede) | sprint-02 | pending | high |
 | T0011 | Corrigir inconsistências de API (stop=0, pausa adaptativa, docs) | sprint-02 | pending | medium |
 

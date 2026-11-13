@@ -135,7 +135,15 @@ def get_tbs(from_date: datetime.date, to_date: datetime.date) -> str:
     return "cdr:1,cd_min:%(from_date)s,cd_max:%(to_date)s" % vars()
 
 
-def get_page(url: str, user_agent: Optional[str] = None, verify_ssl: bool = True) -> str:
+_DEFAULT_TIMEOUT = 10.0
+
+
+def get_page(
+    url: str,
+    user_agent: Optional[str] = None,
+    verify_ssl: bool = True,
+    timeout: float = _DEFAULT_TIMEOUT,
+) -> str:
     if user_agent is None:
         user_agent = _DEFAULT_USER_AGENT
     request = Request(url)
@@ -143,10 +151,10 @@ def get_page(url: str, user_agent: Optional[str] = None, verify_ssl: bool = True
     jar = _get_cookie_jar()
     jar.add_cookie_header(request)
     if verify_ssl:
-        response = urlopen(request)
+        response = urlopen(request, timeout=timeout)
     else:
         context = ssl._create_unverified_context()
-        response = urlopen(request, context=context)
+        response = urlopen(request, context=context, timeout=timeout)
         warnings.warn(
             "SSL certificate verification is disabled (verify_ssl=False). "
             "This exposes you to man-in-the-middle attacks.",
@@ -252,6 +260,7 @@ def search(
     verify_ssl: bool = True,
     include_google_links: bool = False,
     backend: str = "auto",
+    timeout: float = _DEFAULT_TIMEOUT,
 ) -> Generator[str, None, None]:
     seen = set()
     count = 0
@@ -268,7 +277,7 @@ def search(
             )
 
     _get_cookie_jar()
-    get_page(_url_home % {"tld": tld}, user_agent, verify_ssl)
+    get_page(_url_home % {"tld": tld}, user_agent, verify_ssl, timeout)
     current_start = start
 
     _use_playwright = backend == "playwright"
@@ -303,7 +312,7 @@ def search(
         if _use_playwright:
             html = _fetch_with_playwright(url, user_agent)
         else:
-            html = get_page(url, user_agent, verify_ssl)
+            html = get_page(url, user_agent, verify_ssl, timeout)
 
         soup = BeautifulSoup(html, "html.parser")
         search_div = soup.find(id="search")
