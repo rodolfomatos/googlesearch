@@ -38,6 +38,7 @@ current_ticket: ""
 | T009 | Melhorar cobertura de testes (get_page, Playwright, erros de rede) | sprint-02 | done | high |
 | T0010 | Melhorar CI (format check, mypy, prevenir testes de rede) | sprint-02 | done | high |
 | T0011 | Corrigir inconsistências de API (stop=0, pausa adaptativa, docs) | sprint-02 | done | medium |
+| T012 | Atualizar documentação após mudanças do sprint-02 | sprint-02 | done | high |
 
 ## Backlog
 

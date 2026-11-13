@@ -44,6 +44,12 @@ Contrato operacional para o projeto `googlesearch` (bindings não oficiais do Go
 - Suporte a `BeautifulSoup` 3 (não-bs4).
 - Dependências HTTP além de `beautifulsoup4`.
 
+## Segurança
+- `--insecure` / `verify_ssl=False` desativa verificação SSL e emite `UserWarning` (exposição a ataques MITM).
+- Cookie jar em `~/.google-cookie` com permissão `chmod 600`.
+- User-agent padrão é Chrome moderno (não IE 8 desatualizado).
+- `get_page()` e `search()` aceitam parâmetro `timeout` (default 10s) para evitar bloqueios de rede indefinidos.
+
 ## Evidência requerida antes de declarar um task como feito
 - Testes passam (`make test` → exit 0).
 - Lint passa (`make lint` → exit 0).

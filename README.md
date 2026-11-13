@@ -144,6 +144,7 @@ def search(
 | `verify_ssl` | `True` | Verify SSL certificates. |
 | `include_google_links` | `False` | Whether to include links pointing to `google.*`. |
 | `backend` | `'auto'` | `'urllib'`, `'playwright'`, or `'auto'` (try urllib, fall back). |
+| `timeout` | `10.0` | Network timeout in seconds for each HTTP request. |
 
 ### `lucky()`
 

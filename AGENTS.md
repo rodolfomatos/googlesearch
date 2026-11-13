@@ -41,6 +41,8 @@ CI (`.github/workflows/ci.yml`) runs `ruff check` then `pytest` across Python 3.
 - **Cookie jar**: Stored at `~/.google-cookie`, lazy-loaded on first
   `search()` call.
 - **User agents**: Loaded from `user_agents.txt.gz` (gzipped), also lazy.
+- **Timeout**: `get_page()` and `search()` accept `timeout` (default 10s) passed
+  to `urlopen()`. Prevents hanging on unresponsive hosts.
 - **Debug**: Set `googlesearch.DEBUG = True` to print raw HTML responses.
 
 ## Playwright backend internals
@@ -71,6 +73,14 @@ CI (`.github/workflows/ci.yml`) runs `ruff check` then `pytest` across Python 3.
   The `_fetch_with_playwright` stealth config may need updates.
 - **CLI quoting**: Multi-word queries must be quoted (`"foo bar"`), not
   passed as separate positional args.
+
+## Security notes
+
+- **SSL verification**: `--insecure` / `verify_ssl=False` disables certificate
+  verification and emits a `UserWarning`. Exposes to man-in-the-middle attacks.
+- **Cookie jar**: Stored at `~/.google-cookie` with `chmod 600` permissions.
+  Contains Google session cookies — protect file access accordingly.
+- **User agent**: Default is a modern Chrome user agent (no longer IE 8).
 
 ## What NOT to do
 
