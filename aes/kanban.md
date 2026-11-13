@@ -2,7 +2,7 @@
 project: googlesearch
 created: 2026-11-13
 current_sprint: sprint-02
-current_ticket: T014
+current_ticket: ""
 ---
 
 # Kanban — googlesearch
@@ -40,8 +40,8 @@ current_ticket: T014
 | T0011 | Corrigir inconsistências de API (stop=0, pausa adaptativa, docs) | sprint-02 | done | medium |
 | T012 | Atualizar documentação após mudanças do sprint-02 | sprint-02 | done | high |
 | T013 | Rate limiting e deteção de HTTP 429/403 | sprint-03 | done | high |
-| T014 | Corrigir dívida técnica menor (findings MINOR da auditoria) | sprint-03 | in-progress | medium |
+| T014 | Corrigir dívida técnica menor (findings MINOR da auditoria) | sprint-03 | done | medium |
 
 ## Backlog
 
-*Sprint-02 concluído. Sprint-03 em curso. T014 em progresso.*
+*Sprint-02 concluído. Sprint-03 concluído.*

@@ -3,7 +3,7 @@ ticket: T014
 title: Corrigir dívida técnica menor (findings MINOR da auditoria)
 sprint: sprint-03
 priority: medium
-status: in-progress
+status: done
 created: 2026-11-13
 ---
 
