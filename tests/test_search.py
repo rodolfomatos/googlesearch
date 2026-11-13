@@ -77,7 +77,9 @@ class TestGetTbs(unittest.TestCase):
 
 
 class TestLucky(unittest.TestCase):
-    def test_returns_none_for_empty(self):
+    @patch("googlesearch.get_page")
+    def test_returns_none_for_empty(self, mock_get_page):
+        mock_get_page.return_value = _load_fixture("google_results_empty.html")
         result = lucky(query="a9f3b7c2d8e1f4a6b0c3d2e1f4a5b6c7")
         self.assertIsNone(result)
 

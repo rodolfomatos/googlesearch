@@ -29,8 +29,8 @@ current_ticket: ""
 | T001 | Infraestrutura AES: kanban, CLAUDE.md, quality gates | sprint-01 | done | high |
 | T002 | Testes para áreas frágeis (num != 10, CLI, teste ao vivo) | sprint-01 | done | high |
 | T003 | Testes de integração para o CLI (`__main__.py`) | sprint-01 | done | high |
+| T004 | Substituir teste ao vivo por fixture HTML estático | sprint-01 | done | high |
 
 ## Backlog
 
-- T004: Substituir teste ao vivo por fixture HTML estático — coberto por T002 (TestSearchOfflineLucky)
 - T005: Type hints públicos (`search`, `filter_result`, `get_tbs`, etc.)
