@@ -24,6 +24,7 @@ Contrato operacional para o projeto `googlesearch` (bindings não oficiais do Go
 - Não adicionar dependências HTTP externas (`requests`, `httpx`, etc.) — zero deps além de `beautifulsoup4`.
 - Não refatorar o uso de `vars()` em `get_tbs()` nem a flag global `DEBUG` — pré-existentes, estáveis, documentados.
 - Não mover `from playwright.sync_api import sync_playwright` para o topo do ficheiro — a importação deve permanecer diferida dentro da função para que a biblioteca funcione sem Playwright instalado.
+- O Playwright usa `--no-sandbox` nos argumentos do Chromium. Isto é necessário em ambientes containerizados (Docker, CI) mas aumenta a superfície de segurança. Não remover sem entender o impacto.
 - Não alterar o seletor HTML `soup.find(id="search")` sem atualizar também a documentação de áreas frágeis.
 
 ## Ficheiros críticos

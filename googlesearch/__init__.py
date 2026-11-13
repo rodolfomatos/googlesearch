@@ -34,6 +34,7 @@ import time
 import ssl
 import gzip
 import importlib.util
+import warnings
 from http.cookiejar import LWPCookieJar
 from typing import Generator, Optional
 from urllib.request import Request, urlopen
@@ -53,7 +54,10 @@ __all__ = [
 
 DEBUG = False
 
-_DEFAULT_USER_AGENT = "Mozilla/4.0 (compatible; MSIE 8.0; Windows NT 6.0)"
+_DEFAULT_USER_AGENT = (
+    "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 "
+    "(KHTML, like Gecko) Chrome/125.0.0.0 Safari/537.36"
+)
 
 _url_home = "https://www.google.%(tld)s/"
 _url_search = (
@@ -143,11 +147,19 @@ def get_page(url: str, user_agent: Optional[str] = None, verify_ssl: bool = True
     else:
         context = ssl._create_unverified_context()
         response = urlopen(request, context=context)
+        warnings.warn(
+            "SSL certificate verification is disabled (verify_ssl=False). "
+            "This exposes you to man-in-the-middle attacks.",
+            UserWarning,
+            stacklevel=2,
+        )
     jar.extract_cookies(response, request)
     html = response.read()
     response.close()
     try:
         jar.save()
+        if jar.filename:
+            os.chmod(jar.filename, 0o600)
     except (PermissionError, OSError):
         pass
     if DEBUG:
