@@ -27,6 +27,7 @@
 # ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
 # POSSIBILITY OF SUCH DAMAGE.
 
+import datetime
 import os
 import random
 import time
@@ -34,6 +35,7 @@ import ssl
 import gzip
 import importlib.util
 from http.cookiejar import LWPCookieJar
+from typing import Generator, Optional
 from urllib.request import Request, urlopen
 from urllib.parse import quote_plus, urlparse, parse_qs
 from bs4 import BeautifulSoup
@@ -119,17 +121,17 @@ def _get_user_agents():
     return _user_agents_list
 
 
-def get_random_user_agent():
+def get_random_user_agent() -> str:
     return random.choice(_get_user_agents())
 
 
-def get_tbs(from_date, to_date):
+def get_tbs(from_date: datetime.date, to_date: datetime.date) -> str:
     from_date = from_date.strftime("%m/%d/%Y")
     to_date = to_date.strftime("%m/%d/%Y")
     return "cdr:1,cd_min:%(from_date)s,cd_max:%(to_date)s" % vars()
 
 
-def get_page(url, user_agent=None, verify_ssl=True):
+def get_page(url: str, user_agent: Optional[str] = None, verify_ssl: bool = True) -> str:
     if user_agent is None:
         user_agent = _DEFAULT_USER_AGENT
     request = Request(url)
@@ -200,7 +202,7 @@ def _fetch_with_playwright(url, user_agent=None):
         return html
 
 
-def filter_result(link, include_google_links=False):
+def filter_result(link: str, include_google_links: bool = False) -> Optional[str]:
     try:
         if link.startswith("/url?"):
             o = urlparse(link, "http")
@@ -223,22 +225,22 @@ def filter_result(link, include_google_links=False):
 
 
 def search(
-    query,
-    tld="com",
-    lang="en",
-    tbs="0",
-    safe="off",
-    num=10,
-    start=0,
-    stop=None,
-    pause=2.0,
-    country="",
-    extra_params=None,
-    user_agent=None,
-    verify_ssl=True,
-    include_google_links=False,
-    backend="auto",
-):
+    query: str,
+    tld: str = "com",
+    lang: str = "en",
+    tbs: str = "0",
+    safe: str = "off",
+    num: int = 10,
+    start: int = 0,
+    stop: Optional[int] = None,
+    pause: float = 2.0,
+    country: str = "",
+    extra_params: Optional[dict] = None,
+    user_agent: Optional[str] = None,
+    verify_ssl: bool = True,
+    include_google_links: bool = False,
+    backend: str = "auto",
+) -> Generator[str, None, None]:
     seen = set()
     count = 0
     query = quote_plus(query)
@@ -336,7 +338,7 @@ def search(
         current_start += num
 
 
-def lucky(*args, **kwargs):
+def lucky(*args: str, **kwargs: str) -> Optional[str]:
     try:
         return next(search(*args, **kwargs))
     except StopIteration:

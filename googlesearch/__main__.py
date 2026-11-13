@@ -3,7 +3,7 @@ import argparse
 from googlesearch import search, get_random_user_agent
 
 
-def main():
+def main() -> None:
     parser = argparse.ArgumentParser(
         description="Python script to use the Google search engine\n"
         "By Mario Vilas (mvilas at gmail dot com)\n"

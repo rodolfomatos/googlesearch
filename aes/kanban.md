@@ -20,7 +20,7 @@ current_ticket: ""
 
 | Sprint | Período | Status | Tickets |
 |--------|---------|--------|---------|
-| sprint-01 | 2026-11-13 → 2026-11-20 | active | T001, T002, T003 |
+| sprint-01 | 2026-11-13 → 2026-11-20 | active | T001, T002, T003, T004, T005 |
 
 ## Tickets
 
@@ -30,7 +30,8 @@ current_ticket: ""
 | T002 | Testes para áreas frágeis (num != 10, CLI, teste ao vivo) | sprint-01 | done | high |
 | T003 | Testes de integração para o CLI (`__main__.py`) | sprint-01 | done | high |
 | T004 | Substituir teste ao vivo por fixture HTML estático | sprint-01 | done | high |
+| T005 | Type hints públicos (`search`, `filter_result`, `get_tbs`, etc.) | sprint-01 | done | medium |
 
 ## Backlog
 
-- T005: Type hints públicos (`search`, `filter_result`, `get_tbs`, etc.)
+*Sprint-01 concluído. Todos os tickets T001-T005 estão done.*
