@@ -1,8 +1,8 @@
 ---
 project: googlesearch
 created: 2026-11-13
-current_sprint: sprint-01
-current_ticket: ""
+current_sprint: sprint-02
+current_ticket: T008
 ---
 
 # Kanban — googlesearch
@@ -13,14 +13,15 @@ current_ticket: ""
 |-------|-------|
 | Projeto | googlesearch |
 | Criado em | 2026-11-13 |
-| Sprint atual | sprint-01 |
-| Ticket atual | — |
+| Sprint atual | sprint-02 |
+| Ticket atual | T008 |
 
 ## Sprints
 
 | Sprint | Período | Status | Tickets |
 |--------|---------|--------|---------|
-| sprint-01 | 2026-11-13 → 2026-11-20 | active | T001, T002, T003, T004, T005 |
+| sprint-01 | 2026-11-13 → 2026-11-20 | done | T001, T002, T003, T004, T005 |
+| sprint-02 | 2026-11-13 → 2026-11-27 | active | T006, T007, T008, T009, T0010, T0011 |
 
 ## Tickets
 
@@ -31,7 +32,13 @@ current_ticket: ""
 | T003 | Testes de integração para o CLI (`__main__.py`) | sprint-01 | done | high |
 | T004 | Substituir teste ao vivo por fixture HTML estático | sprint-01 | done | high |
 | T005 | Type hints públicos (`search`, `filter_result`, `get_tbs`, etc.) | sprint-01 | done | medium |
+| T006 | Auditoria hostil completa do projeto (11 domínios AES) | sprint-02 | done | high |
+| T007 | Corrigir findings de segurança (SSL, cookie jar, user-agent) | sprint-02 | done | high |
+| T008 | Adicionar timeout de rede e rate limiting / deteção 429 | sprint-02 | in-progress | high |
+| T009 | Melhorar cobertura de testes (get_page, Playwright, erros de rede) | sprint-02 | pending | high |
+| T0010 | Melhorar CI (format check, mypy, prevenir testes de rede) | sprint-02 | pending | high |
+| T0011 | Corrigir inconsistências de API (stop=0, pausa adaptativa, docs) | sprint-02 | pending | medium |
 
 ## Backlog
 
-*Sprint-01 concluído. Todos os tickets T001-T005 estão done.*
+*Sprint-02 em curso. T007 em progresso.*
