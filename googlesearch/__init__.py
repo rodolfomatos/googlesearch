@@ -30,10 +30,12 @@
 import datetime
 import os
 import random
-import time
 import ssl
 import gzip
 import importlib.util
+import logging
+import threading
+import time
 import warnings
 from http.cookiejar import LWPCookieJar
 from typing import Generator, Optional
@@ -53,7 +55,10 @@ __all__ = [
     "get_tbs",
 ]
 
-DEBUG = False
+logger = logging.getLogger(__name__)
+logger.addHandler(logging.NullHandler())
+
+_DEBUG = False
 
 _DEFAULT_USER_AGENT = (
     "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 "
@@ -110,19 +115,25 @@ def _load_user_agents():
 
 _user_agents_list = None
 _cookie_jar = None
+_cookie_jar_lock = threading.Lock()
+_user_agents_lock = threading.Lock()
 
 
 def _get_cookie_jar():
     global _cookie_jar
     if _cookie_jar is None:
-        _cookie_jar = _load_cookie_jar()
+        with _cookie_jar_lock:
+            if _cookie_jar is None:
+                _cookie_jar = _load_cookie_jar()
     return _cookie_jar
 
 
 def _get_user_agents():
     global _user_agents_list
     if _user_agents_list is None:
-        _user_agents_list = _load_user_agents()
+        with _user_agents_lock:
+            if _user_agents_list is None:
+                _user_agents_list = _load_user_agents()
     return _user_agents_list
 
 
@@ -171,10 +182,10 @@ def get_page(
             os.chmod(jar.filename, 0o600)
     except (PermissionError, OSError):
         pass
-    if DEBUG:
-        print("-" * 79)
-        print(html.decode("utf-8", errors="replace"))
-        print("-" * 79)
+    if _DEBUG:
+        logger.debug("-" * 79)
+        logger.debug(html.decode("utf-8", errors="replace"))
+        logger.debug("-" * 79)
     return html
 
 
