@@ -1,4 +1,7 @@
+import os
+import sys
 import unittest
+from unittest.mock import patch
 from googlesearch import (
     search,
     lucky,
@@ -7,6 +10,13 @@ from googlesearch import (
     filter_result,
 )
 import datetime
+
+_FIXTURES_DIR = os.path.join(os.path.dirname(__file__), "fixtures")
+
+
+def _load_fixture(name):
+    with open(os.path.join(_FIXTURES_DIR, name), encoding="utf-8") as f:
+        return f.read()
 
 
 class TestFilterResult(unittest.TestCase):
@@ -85,6 +95,151 @@ class TestVersion(unittest.TestCase):
         self.assertIsInstance(__version__, str)
         parts = __version__.split(".")
         self.assertEqual(len(parts), 3)
+
+
+class TestSearchWithNumNot10(unittest.TestCase):
+    """search() com num != 10 (caminho historicamente pouco testado)."""
+
+    @patch("googlesearch.get_page")
+    def test_num_20_returns_20_results(self, mock_get_page):
+        mock_get_page.return_value = _load_fixture("google_results.html")
+        results = list(search("test query", num=20, stop=5))
+        # O fixture tem 3 links válidos (o link do google.com e o relativo são filtrados)
+        self.assertEqual(len(results), 3)
+        self.assertIn("https://example.com/page1", results)
+        self.assertIn("https://example.com/page2", results)
+        self.assertIn("https://example.com/page3", results)
+
+    @patch("googlesearch.get_page")
+    def test_num_50_uses_num_template(self, mock_get_page):
+        mock_get_page.return_value = _load_fixture("google_results.html")
+        list(search("test query", num=50, start=0, stop=1))
+        # Verifica que a URL construída usa _url_search_num (contém num=50)
+        called_url = mock_get_page.call_args[0][0]
+        self.assertIn("num=50", called_url)
+
+    @patch("googlesearch.get_page")
+    def test_start_10_uses_next_page_template(self, mock_get_page):
+        mock_get_page.return_value = _load_fixture("google_results.html")
+        list(search("test query", num=10, start=10, stop=1))
+        called_url = mock_get_page.call_args[0][0]
+        self.assertIn("start=10", called_url)
+
+    @patch("googlesearch.get_page")
+    def test_pagination_advances_start(self, mock_get_page):
+        mock_get_page.return_value = _load_fixture("google_results.html")
+        list(search("test query", num=10, stop=25))
+        # Deve ter feito pelo menos 2 páginas (home + primeira de busca)
+        self.assertGreaterEqual(mock_get_page.call_count, 2)
+        urls = [c[0][0] for c in mock_get_page.call_args_list]
+        # Quando start=0 (default), o parâmetro start não é adicionado à URL
+        search_urls = [u for u in urls if "/search?" in u]
+        self.assertNotIn("start=", search_urls[0])  # start=0 é omitido
+        self.assertIn("start=10", search_urls[1])   # start=10 é incluído na segunda página
+
+
+class TestSearchEdgeCases(unittest.TestCase):
+    """Casos extremos: página vazia, challenge do Google, sem container."""
+
+    @patch("googlesearch.get_page")
+    def test_empty_results_page(self, mock_get_page):
+        mock_get_page.return_value = _load_fixture("google_results_empty.html")
+        results = list(search("test query", stop=10))
+        self.assertEqual(results, [])
+
+    @patch("googlesearch.get_page")
+    def test_challenge_page_no_search_div(self, mock_get_page):
+        mock_get_page.return_value = _load_fixture("google_challenge.html")
+        # Sem id="search", cai no fallback de gbar/all anchors -> nenhum resultado válido
+        results = list(search("test query", stop=10))
+        self.assertEqual(results, [])
+
+    @patch("googlesearch.get_page")
+    def test_google_links_filtered_by_default(self, mock_get_page):
+        mock_get_page.return_value = _load_fixture("google_results.html")
+        results = list(search("test query", include_google_links=False, stop=10))
+        self.assertNotIn("https://google.com/search", results)
+
+    @patch("googlesearch.get_page")
+    def test_google_links_included_when_requested(self, mock_get_page):
+        mock_get_page.return_value = _load_fixture("google_results.html")
+        results = list(search("test query", include_google_links=True, stop=10))
+        self.assertIn("https://google.com/search?q=test", results)
+
+
+class TestSearchOfflineLucky(unittest.TestCase):
+    """lucky() sem dependência de rede (substitui o teste ao vivo)."""
+
+    @patch("googlesearch.get_page")
+    def test_lucky_returns_first_result(self, mock_get_page):
+        mock_get_page.return_value = _load_fixture("google_results.html")
+        result = lucky("test query")
+        self.assertEqual(result, "https://example.com/page1")
+
+    @patch("googlesearch.get_page")
+    def test_lucky_returns_none_for_empty(self, mock_get_page):
+        mock_get_page.return_value = _load_fixture("google_results_empty.html")
+        result = lucky("test query")
+        self.assertIsNone(result)
+
+
+class TestCLI(unittest.TestCase):
+    """Testes de integração para o CLI (__main__.py).
+
+    O main() lê sys.argv internamente, então fazemos patch de sys.argv
+    e de googlesearch.__main__.search para isolar da rede.
+    """
+
+    def test_help_exits_zero(self):
+        from googlesearch.__main__ import main
+
+        old_argv = sys.argv
+        sys.argv = ["google", "--help"]
+        try:
+            with self.assertRaises(SystemExit) as cm:
+                main()
+            self.assertEqual(cm.exception.code, 0)
+        finally:
+            sys.argv = old_argv
+
+    @patch("googlesearch.__main__.search")
+    def test_cli_prints_results(self, mock_search):
+        mock_search.return_value = iter([
+            "https://example.com/page1",
+            "https://example.com/page2",
+        ])
+        from googlesearch.__main__ import main
+        import io
+        import contextlib
+
+        old_argv = sys.argv
+        sys.argv = ["google", "--stop=2", "test", "query"]
+        try:
+            buf = io.StringIO()
+            with contextlib.redirect_stdout(buf):
+                main()
+            output = buf.getvalue().strip().splitlines()
+            self.assertEqual(output, [
+                "https://example.com/page1",
+                "https://example.com/page2",
+            ])
+        finally:
+            sys.argv = old_argv
+
+    @patch("googlesearch.__main__.search")
+    def test_cli_query_joined_with_spaces(self, mock_search):
+        mock_search.return_value = iter([])
+        from googlesearch.__main__ import main
+
+        old_argv = sys.argv
+        sys.argv = ["google", "opencode", "agents"]
+        try:
+            main()
+        finally:
+            sys.argv = old_argv
+        # A query deve ser "opencode agents" (unida com espaço)
+        called_query = mock_search.call_args[0][0]
+        self.assertEqual(called_query, "opencode agents")
 
 
 if __name__ == "__main__":
