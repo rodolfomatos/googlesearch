@@ -38,6 +38,7 @@ import warnings
 from http.cookiejar import LWPCookieJar
 from typing import Generator, Optional
 from urllib.request import Request, urlopen
+from urllib.error import HTTPError
 from urllib.parse import quote_plus, urlparse, parse_qs
 from bs4 import BeautifulSoup
 
@@ -261,6 +262,7 @@ def search(
     include_google_links: bool = False,
     backend: str = "auto",
     timeout: float = _DEFAULT_TIMEOUT,
+    max_retries: int = 3,
 ) -> Generator[str, None, None]:
     seen = set()
     count = 0
@@ -312,7 +314,17 @@ def search(
         if _use_playwright:
             html = _fetch_with_playwright(url, user_agent)
         else:
-            html = get_page(url, user_agent, verify_ssl, timeout)
+            retries = 0
+            while True:
+                try:
+                    html = get_page(url, user_agent, verify_ssl, timeout)
+                    break
+                except HTTPError as e:
+                    if e.code not in (429, 403) or retries >= max_retries:
+                        raise
+                    retries += 1
+                    backoff = pause * (2 ** (retries - 1))
+                    time.sleep(backoff)
 
         soup = BeautifulSoup(html, "html.parser")
         search_div = soup.find(id="search")

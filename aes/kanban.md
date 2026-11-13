@@ -39,7 +39,8 @@ current_ticket: ""
 | T0010 | Melhorar CI (format check, mypy, prevenir testes de rede) | sprint-02 | done | high |
 | T0011 | Corrigir inconsistências de API (stop=0, pausa adaptativa, docs) | sprint-02 | done | medium |
 | T012 | Atualizar documentação após mudanças do sprint-02 | sprint-02 | done | high |
+| T013 | Rate limiting e deteção de HTTP 429/403 | sprint-03 | done | high |
 
 ## Backlog
 
-*Sprint-02 em curso. T007 em progresso.*
+*Sprint-02 concluído. Sprint-03 em curso. T013 em progresso.*

@@ -1,6 +1,7 @@
 import os
 import sys
 import unittest
+from urllib.error import HTTPError
 from unittest.mock import patch, MagicMock
 from googlesearch import (
     search,
@@ -376,6 +377,75 @@ class TestGetPage(unittest.TestCase):
         from googlesearch import get_page
         with self.assertRaises(TimeoutError):
             get_page("https://example.com", timeout=0.001)
+
+
+class TestGetPage429Retry(unittest.TestCase):
+    """Testes de retry com backoff para respostas 429/403 do Google."""
+
+    def _make_error(self, code):
+        from urllib.error import HTTPError
+        return HTTPError("https://example.com", code, "Forbidden", {}, None)
+
+    @patch("googlesearch.get_page")
+    @patch("googlesearch.time.sleep")
+    def test_get_page_raises_on_429_after_max_retries(self, mock_sleep, mock_get_page):
+        # First call is home page (succeeds), then search page calls fail with 429
+        mock_response = MagicMock()
+        mock_response.read.return_value = b"<html></html>"
+        mock_response.__enter__.return_value = mock_response
+        mock_response.__exit__.return_value = False
+
+        mock_get_page.side_effect = [
+            mock_response,                          # home page - success
+            self._make_error(429),                  # search page - 429
+            self._make_error(429),                  # retry - 429
+            self._make_error(429),                  # retry - 429 (max_retries exceeded)
+        ]
+
+        from googlesearch import search
+
+        with self.assertRaises(HTTPError):
+            list(search("test", num=1, stop=1, max_retries=2))
+        # home page (1) + search page retries (3) = 4 calls
+        self.assertEqual(mock_get_page.call_count, 4)
+
+    @patch("googlesearch.get_page")
+    @patch("googlesearch.time.sleep")
+    def test_get_page_retries_then_succeeds(self, mock_sleep, mock_get_page):
+        mock_response = MagicMock()
+        mock_response.read.return_value = b"<html><div id='search'><a href='https://example.com/result'>Result</a></div></html>"
+        mock_response.__enter__.return_value = mock_response
+        mock_response.__exit__.return_value = False
+
+        mock_get_page.side_effect = [
+            mock_response,                          # home page - success
+            self._make_error(429),                  # search page - 429
+            self._make_error(429),                  # retry - 429
+            mock_response,                          # retry - success
+        ]
+
+        from googlesearch import search
+        results = list(search("test", num=1, stop=1, max_retries=3))
+        self.assertEqual(results, ["https://example.com/result"])
+        self.assertEqual(mock_get_page.call_count, 4)
+
+    @patch("googlesearch.get_page")
+    def test_get_page_raises_on_403(self, mock_get_page):
+        # Home page succeeds, then search page raises 403
+        mock_response = MagicMock()
+        mock_response.read.return_value = b"<html></html>"
+        mock_response.__enter__.return_value = mock_response
+        mock_response.__exit__.return_value = False
+
+        mock_get_page.side_effect = [
+            mock_response,                          # home page - success
+            self._make_error(403),                  # search page - 403
+            self._make_error(403),                  # retry - 403 (max_retries exceeded)
+        ]
+
+        from googlesearch import search
+        with self.assertRaises(HTTPError):
+            list(search("test", num=1, stop=1, max_retries=1))
 
 
 if __name__ == "__main__":
