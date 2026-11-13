@@ -242,5 +242,106 @@ class TestCLI(unittest.TestCase):
         self.assertEqual(called_query, "opencode agents")
 
 
+class TestCLIArgs(unittest.TestCase):
+    """Todos os argumentos do argparse devem chegar corretamente a search()."""
+
+    def _run_main_with_args(self, extra_args):
+        """Executa main() com sys.argv alterado, restaurando depois."""
+        from googlesearch.__main__ import main
+
+        old_argv = sys.argv
+        sys.argv = ["google"] + extra_args
+        try:
+            main()
+        finally:
+            sys.argv = old_argv
+
+    @patch("googlesearch.__main__.search")
+    def test_default_args(self, mock_search):
+        mock_search.return_value = iter([])
+        self._run_main_with_args(["query"])
+        _, kwargs = mock_search.call_args
+        self.assertEqual(kwargs["tld"], "com")
+        self.assertEqual(kwargs["lang"], "en")
+        self.assertEqual(kwargs["tbs"], "0")
+        self.assertEqual(kwargs["safe"], "off")
+        self.assertEqual(kwargs["country"], "")
+        self.assertEqual(kwargs["num"], 10)
+        self.assertEqual(kwargs["start"], 0)
+        self.assertIsNone(kwargs["stop"])  # --stop=0 -> None
+        self.assertEqual(kwargs["pause"], 2.0)
+        self.assertIsNone(kwargs["user_agent"])  # --rua não passado
+        self.assertTrue(kwargs["verify_ssl"])
+        self.assertFalse(kwargs["include_google_links"])
+        self.assertEqual(kwargs["backend"], "auto")
+
+    @patch("googlesearch.__main__.search")
+    def test_all_custom_args(self, mock_search):
+        mock_search.return_value = iter([])
+        self._run_main_with_args([
+            "--tld", "co.uk",
+            "--lang", "pt",
+            "--tbs", "qdr:d",
+            "--safe", "on",
+            "--country", "BR",
+            "--num", "20",
+            "--start", "30",
+            "--stop", "50",
+            "--pause", "1.5",
+            "--rua",
+            "--insecure",
+            "--include",
+            "--backend", "playwright",
+            "minha",
+            "query",
+        ])
+        _, kwargs = mock_search.call_args
+        self.assertEqual(kwargs["tld"], "co.uk")
+        self.assertEqual(kwargs["lang"], "pt")
+        self.assertEqual(kwargs["tbs"], "qdr:d")
+        self.assertEqual(kwargs["safe"], "on")
+        self.assertEqual(kwargs["country"], "BR")
+        self.assertEqual(kwargs["num"], 20)
+        self.assertEqual(kwargs["start"], 30)
+        self.assertEqual(kwargs["stop"], 50)
+        self.assertEqual(kwargs["pause"], 1.5)
+        self.assertIsInstance(kwargs["user_agent"], str)
+        self.assertGreater(len(kwargs["user_agent"]), 0)
+        self.assertFalse(kwargs["verify_ssl"])
+        self.assertTrue(kwargs["include_google_links"])
+        self.assertEqual(kwargs["backend"], "playwright")
+
+    @patch("googlesearch.__main__.search")
+    @patch("googlesearch.__main__.get_random_user_agent")
+    def test_rua_calls_get_random_user_agent(self, mock_rua, mock_search):
+        mock_rua.return_value = "UA-Test/1.0"
+        mock_search.return_value = iter([])
+        self._run_main_with_args(["--rua", "query"])
+        _, kwargs = mock_search.call_args
+        self.assertEqual(kwargs["user_agent"], "UA-Test/1.0")
+        mock_rua.assert_called_once()
+
+    @patch("googlesearch.__main__.search")
+    def test_stop_zero_becomes_none(self, mock_search):
+        mock_search.return_value = iter([])
+        self._run_main_with_args(["--stop=0", "query"])
+        _, kwargs = mock_search.call_args
+        self.assertIsNone(kwargs["stop"])
+
+    @patch("googlesearch.__main__.search")
+    def test_stop_positive_passthrough(self, mock_search):
+        mock_search.return_value = iter([])
+        self._run_main_with_args(["--stop=10", "query"])
+        _, kwargs = mock_search.call_args
+        self.assertEqual(kwargs["stop"], 10)
+
+    @patch("googlesearch.__main__.search")
+    def test_query_joined_with_spaces(self, mock_search):
+        mock_search.return_value = iter([])
+        self._run_main_with_args(["opencode", "agents", "test"])
+        args, _ = mock_search.call_args
+        self.assertEqual(args[0], "opencode agents test")
+
+
 if __name__ == "__main__":
     unittest.main()
