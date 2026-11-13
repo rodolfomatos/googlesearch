@@ -324,9 +324,16 @@ class TestCLIArgs(unittest.TestCase):
         mock_rua.assert_called_once()
 
     @patch("googlesearch.__main__.search")
-    def test_stop_zero_becomes_none(self, mock_search):
+    def test_stop_zero_means_zero_results(self, mock_search):
         mock_search.return_value = iter([])
         self._run_main_with_args(["--stop=0", "query"])
+        _, kwargs = mock_search.call_args
+        self.assertEqual(kwargs["stop"], 0)
+
+    @patch("googlesearch.__main__.search")
+    def test_stop_default_is_unlimited(self, mock_search):
+        mock_search.return_value = iter([])
+        self._run_main_with_args(["query"])
         _, kwargs = mock_search.call_args
         self.assertIsNone(kwargs["stop"])
 

@@ -132,7 +132,7 @@ def get_random_user_agent() -> str:
 def get_tbs(from_date: datetime.date, to_date: datetime.date) -> str:
     from_date = from_date.strftime("%m/%d/%Y")
     to_date = to_date.strftime("%m/%d/%Y")
-    return "cdr:1,cd_min:%(from_date)s,cd_max:%(to_date)s" % vars()
+    return f"cdr:1,cd_min:{from_date},cd_max:{to_date}"
 
 
 _DEFAULT_TIMEOUT = 10.0

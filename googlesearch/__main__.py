@@ -56,7 +56,7 @@ def main() -> None:
         "--stop",
         metavar="N",
         type=int,
-        default=0,
+        default=None,
         help="Last result to retrieve [default: unlimited]",
     )
     parser.add_argument(
@@ -104,7 +104,7 @@ def main() -> None:
         "country": args.country,
         "num": args.num,
         "start": args.start,
-        "stop": args.stop if args.stop else None,
+        "stop": args.stop,
         "pause": args.pause,
         "user_agent": get_random_user_agent() if args.rua else None,
         "verify_ssl": args.verify_ssl,
